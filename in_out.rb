@@ -6,6 +6,7 @@ class InOut
   LANG_FILE_PATH = "download/lang.txt"
   REPOS_FILE_PATH = "download/repos.txt"
   TEST_FILE_PATH = "download/test.txt"
+  RESULTS_FILE_PATH = "results.txt"
   
   def self.read_data
     data = {}
@@ -54,24 +55,24 @@ class InOut
   end
 
   def self.output_results(users_repos)
-    out = ""
+    File.delete(RESULTS_FILE_PATH) if File.exist?(RESULTS_FILE_PATH)
+    f = File.open(RESULTS_FILE_PATH, 'a')
+
     counter = 0
     for user_id in users_repos.keys
-      out += user_id + ":"
+      f.write(user_id + ":")
       i = 0
       for repo_id in users_repos[user_id]
         if repo_id
-          out += "," if i > 0
-          out += repo_id
+          f.write(",") if i > 0
+          f.write(repo_id)
           i += 1
         end
       end
       
-      out += "\n"
+      f.write("\n")
       print counter.to_s + "\n"
       counter += 1
     end
-    
-    File.open("results.txt", 'w') {|f| f.write(out) }
   end
 end
