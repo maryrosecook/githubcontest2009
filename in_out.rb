@@ -59,7 +59,7 @@ class InOut
     f = File.open(RESULTS_FILE_PATH, 'a')
 
     counter = 0
-    for user_id in users_repos.keys
+    for user_id in users_repos.keys.sort { |x,y| x.to_i <=> y.to_i }
       f.write(user_id + ":")
       i = 0
       for repo_id in users_repos[user_id]
