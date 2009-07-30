@@ -55,16 +55,21 @@ class InOut
 
   def self.output_results(users_repos)
     out = ""
+    counter = 0
     for user_id in users_repos.keys
       out += user_id + ":"
       i = 0
       for repo_id in users_repos[user_id]
-        out += "," if i > 0
-        out += repo_id
-        i += 1
+        if repo_id
+          out += "," if i > 0
+          out += repo_id
+          i += 1
+        end
       end
       
       out += "\n"
+      print counter.to_s + "\n"
+      counter += 1
     end
     
     File.open("results.txt", 'w') {|f| f.write(out) }

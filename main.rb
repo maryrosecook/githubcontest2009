@@ -10,8 +10,8 @@ users_repos = {}
 counter = 0
 for test_user_id in test
   users_repos[test_user_id] = []
+
   followed_repos = {}
-  
   if data.has_key?(test_user_id)
     for followed_repo_id in data[test_user_id]
       for follower_id in repo_followers[followed_repo_id]
@@ -21,13 +21,7 @@ for test_user_id in test
     end
   
     ranked_followed_repos = followed_repos.keys().sort { |x,y| followed_repos[y] <=> followed_repos[x] }
-  
-    i = 0
-    for repo_id in ranked_followed_repos
-      users_repos[test_user_id] << repo_id
-      break if i >= 9
-      i += 1
-    end
+    (0..Util.min(9, ranked_followed_repos.length)).each { |i| users_repos[test_user_id] << ranked_followed_repos[i] }
   end
   
   print counter.to_s + "\n"

@@ -25,4 +25,15 @@ class Util
     rotated_hash
   end
   
+  def self.min(a,b)
+    min = nil
+    b < a ? min = b : min = a
+    return min
+  end
+  
+  def self.max(a,b)
+    max = nil
+    b > a ? max = b : max = a
+    return max
+  end
 end
