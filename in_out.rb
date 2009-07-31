@@ -37,12 +37,12 @@ class InOut
       while !f.eof?
         line = f.readline
         
-        user_id = line.gsub(/([^:]*).*/, '\1').strip
+        user_id = line.gsub(/([^:]*).*/, '\1').strip.to_i
         collab[user_id] = {}
         repos_str = line.gsub(/[^:]*:/, "").strip
         for repo_str in repos_str.split(",")
           repo = repo_str.split(";")
-          collab[user_id][repo[0]] = repo[1]
+          collab[user_id][repo[0].to_i] = repo[1].to_i
         end
       end
     end
@@ -55,8 +55,8 @@ class InOut
     File.open(DATA_FILE_PATH, "r") do |f|
       while !f.eof?
         line_els = f.readline.split(":")
-        user_id = line_els[0].strip
-        repo_id = line_els[1].gsub(/\n/, "")
+        user_id = line_els[0].strip.to_i
+        repo_id = line_els[1].gsub(/\n/, "").to_i
         if Util.ne(user_id) && Util.ne(repo_id)
           data[user_id] = [] if !data.has_key?(user_id)
           data[user_id] << repo_id
@@ -73,11 +73,11 @@ class InOut
       while !f.eof?
         line = f.readline
         repo = {}
-        repo[:repo_id] = line.gsub(/([^:]*).*/, '\1').strip
+        repo[:repo_id] = line.gsub(/([^:]*).*/, '\1').strip.to_i
         repo[:repo_url] = line.gsub(/[^:]*:([^,]*).*/, '\1').strip
         repo[:created_at] = line.gsub(/[^:]*:[^,]*,(.*)/, '\1').strip
-        fork_repo_id = line.gsub(/[^:]*:[^,]*,[^,]*,(.*)/, '\1').strip
-        fork_repo_id.match(/,/) ? repo[:fork_repo_id] = "" : repo[:fork_repo_id] = fork_repo_id
+        fork_repo_id = line.gsub(/[^:]*:[^,]*,[^,]*,(.*)/, '\1').strip.to_i
+        fork_repo_id.match(/,/) ? repo[:fork_repo_id] = nil : repo[:fork_repo_id] = fork_repo_id
         repos << repo
       end
     end
@@ -89,7 +89,7 @@ class InOut
     test = []
     File.open(TEST_FILE_PATH, "r") do |f|
       while !f.eof?
-        test << f.readline.gsub(/\n/, "")
+        test << f.readline.gsub(/\n/, "").to_i
       end
     end
 
@@ -99,9 +99,9 @@ class InOut
   def self.output_results(users_repos)
     File.delete(RESULTS_FILE_PATH) if File.exist?(RESULTS_FILE_PATH)
     f = File.open(RESULTS_FILE_PATH, 'a')
-
-    for user_id in users_repos.keys.sort { |x,y| x.to_i <=> y.to_i }
-      f.write(user_id + ":")
+        
+    for user_id in users_repos.keys.sort { |x,y| x <=> y }
+      f.write(user_id.to_s + ":")
       i = 0
       for repo_id in users_repos[user_id]
         if repo_id

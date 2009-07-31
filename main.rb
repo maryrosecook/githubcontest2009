@@ -18,8 +18,11 @@ def self.calculate_and_write_collab_file(test, data, repo_followers)
         for follower_id in repo_followers[followed_repo_id]
           if follower_id != test_user_id
             for potential_repo_id in data[follower_id]
-              potential_repos[potential_repo_id] = 0 if !potential_repos.has_key?(potential_repo_id)
-              potential_repos[potential_repo_id] += 1
+              if !potential_repos.has_key?(potential_repo_id)
+                potential_repos[potential_repo_id] = 1
+              else
+                potential_repos[potential_repo_id] += 1
+              end
             end
           end
         end
@@ -27,7 +30,8 @@ def self.calculate_and_write_collab_file(test, data, repo_followers)
 
       # rank by repo score and put into user_repos hash
       potential_repo_ids = potential_repos.keys().sort { |x,y| potential_repos[y] <=> potential_repos[x] }
-      for i in (0..Util.min(500, potential_repo_ids.length))
+      i = 0
+      for i in (0..Util.min(2000, potential_repo_ids.length))
         if potential_repo_id = potential_repo_ids[i]
           collab[test_user_id][potential_repo_id] = potential_repos[potential_repo_id]
         end
@@ -46,6 +50,7 @@ end
 ##########
 
 print "reading data\n"
+
 data = InOut.read_data()
 repo_followers = Util.rotate_hash(data)
 #repos = read_repos()
@@ -56,11 +61,12 @@ print "calculating\n"
 
 # get results
 results = {}
+counter = 0
 for test_user_id in test
   results[test_user_id] = []
   if collab.has_key?(test_user_id)
     potential_repos = collab[test_user_id]
-  
+    
     # normalise by repo popularity
     #for repo_id in potential_repos.keys
     #  potential_repos[repo_id] = potential_repos[repo_id].to_f * repo_followers[repo_id].length.to_f
@@ -72,6 +78,9 @@ for test_user_id in test
     # recommend top ten
     (0..Util.min(9, ranked_potential_repos.length)).each { |i| results[test_user_id] << ranked_potential_repos[i] }
   end
+  
+  print counter.to_s + "\n"
+  counter += 1
 end
 
 InOut.output_results(results)
