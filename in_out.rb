@@ -7,6 +7,51 @@ class InOut
   REPOS_FILE_PATH = "download/repos.txt"
   TEST_FILE_PATH = "download/test.txt"
   RESULTS_FILE_PATH = "results.txt"
+  COLLAB_FILE_PATH = "collab.txt"
+
+  def self.write_collab(collab)
+    File.delete(COLLAB_FILE_PATH) if File.exist?(COLLAB_FILE_PATH)
+    f = File.open(COLLAB_FILE_PATH, 'a')
+    
+    counter = 0
+    for user_id in collab.keys#.sort { |x,y| x <=> y }
+      f.write(user_id.to_s + ":")
+      i = 0
+      for repo_id in collab[user_id].keys.sort { |x,y| collab[user_id][y] <=> collab[user_id][x] }
+        f.write(",") if i > 0
+        f.write(repo_id.to_s + ";" + collab[user_id][repo_id].to_s)
+        i += 1
+      end
+      
+      f.write("\n")
+      
+      print counter.to_s + "\n"
+      counter += 1
+    end
+  end
+
+  def self.read_collab
+    collab = {}
+    File.open(COLLAB_FILE_PATH, "r") do |f|
+      counter = 0
+      while !f.eof?
+        line = f.readline
+        
+        user_id = line.gsub(/([^:]*).*/, '\1').strip
+        collab[user_id] = {}
+        repos_str = line.gsub(/[^:]*:/, "").strip
+        for repo_str in repos_str.split(",")
+          repo = repo_str.split(";")
+          collab[user_id][repo[0]] = repo[1]
+        end
+        
+        print counter.to_s + "\n"
+        counter += 1
+      end
+    end
+    
+    return collab
+  end
   
   def self.read_data
     data = {}
