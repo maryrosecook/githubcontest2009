@@ -44,9 +44,6 @@ class InOut
           repo = repo_str.split(";")
           collab[user_id][repo[0]] = repo[1]
         end
-        
-        print counter.to_s + "\n"
-        counter += 1
       end
     end
     

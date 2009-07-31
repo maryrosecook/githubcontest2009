@@ -45,12 +45,14 @@ end
 
 ##########
 
+print "reading data\n"
 data = InOut.read_data()
 repo_followers = Util.rotate_hash(data)
 #repos = read_repos()
 test = InOut.read_test()
 calculate_and_write_collab_file(test, data, repo_followers) if !File.exist?(InOut::COLLAB_FILE_PATH) # only run if file not there
 collab = InOut.read_collab()
+print "calculating\n"
 
 # get results
 results = {}
@@ -61,7 +63,7 @@ for test_user_id in test
   
     # normalise by repo popularity
     for repo_id in potential_repos.keys
-      potential_repos[repo_id] = potential_repos[repo_id].to_f / repo_followers[repo_id].length.to_f
+      potential_repos[repo_id] = potential_repos[repo_id].to_f * repo_followers[repo_id].length.to_f
     end
 
     # rank by repo score
