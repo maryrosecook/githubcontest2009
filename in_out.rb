@@ -58,7 +58,6 @@ class InOut
     File.delete(RESULTS_FILE_PATH) if File.exist?(RESULTS_FILE_PATH)
     f = File.open(RESULTS_FILE_PATH, 'a')
 
-    counter = 0
     for user_id in users_repos.keys.sort { |x,y| x.to_i <=> y.to_i }
       f.write(user_id + ":")
       i = 0
@@ -71,8 +70,6 @@ class InOut
       end
       
       f.write("\n")
-      print counter.to_s + "\n"
-      counter += 1
     end
   end
 end
