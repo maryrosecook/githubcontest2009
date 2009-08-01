@@ -98,10 +98,14 @@ for test_user_id in test
         for repo_lang_name in lang[potential_repo_id].keys
           if user_lang.has_key?(test_user_id)
             for user_lang_name in user_lang[test_user_id]
-              user_likes_lang = true
+              user_likes_lang = true if repo_lang_name == user_lang_name
             end
+          else
+            user_likes_lang = true
           end
         end
+      else
+        user_likes_lang = true
       end
       
       potential_repos.delete(potential_repo_id) if !user_likes_lang
