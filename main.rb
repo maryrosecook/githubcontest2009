@@ -68,9 +68,9 @@ for test_user_id in test
     potential_repos = collab[test_user_id]
     
     # normalise by repo popularity
-    for repo_id in potential_repos.keys
-      potential_repos[repo_id] = potential_repos[repo_id].to_f / repo_followers[repo_id].length.to_f
-    end
+    # for repo_id in potential_repos.keys
+    #   potential_repos[repo_id] = potential_repos[repo_id].to_f / repo_followers[repo_id].length.to_f
+    # end
 
     # rank by repo score
     ranked_potential_repos = potential_repos.keys().sort { |x,y| potential_repos[y] <=> potential_repos[x] }
