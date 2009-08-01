@@ -33,7 +33,6 @@ class InOut
   def self.read_collab
     collab = {}
     File.open(COLLAB_FILE_PATH, "r") do |f|
-      counter = 0
       while !f.eof?
         line = f.readline
         
@@ -48,6 +47,25 @@ class InOut
     end
     
     return collab
+  end
+  
+  def self.read_lang
+    lang = {}
+    File.open(LANG_FILE_PATH, "r") do |f|
+      while !f.eof?
+        line = f.readline
+        
+        repo_id = line.gsub(/([^:]*).*/, '\1').strip.to_i
+        lang[repo_id] = {}
+        langs_str = line.gsub(/[^:]*:/, "").strip
+        for lang_str in langs_str.split(",")
+          lang_arr = lang_str.split(";")
+          lang[repo_id][lang_arr[0]] = lang_arr[1].to_i
+        end
+      end
+    end
+    
+    return lang
   end
   
   def self.read_data

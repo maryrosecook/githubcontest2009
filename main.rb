@@ -47,16 +47,40 @@ def self.calculate_and_write_collab_file(test, data, repo_followers)
   InOut.write_collab(collab)
 end
 
+def self.calculate_user_lang(lang, test, data)
+  user_lang = {}
+  for test_user_id in test # run through repos followed by test user
+    user_lang[test_user_id] = {}
+    
+    if data.has_key?(test_user_id)
+      for followed_repo_id in data[test_user_id]
+        if lang.has_key?(followed_repo_id)
+          for lang_name in lang[followed_repo_id].keys
+            user_lang[test_user_id][lang_name] = 0 if !user_lang[test_user_id].has_key?(lang_name)
+            user_lang[test_user_id][lang_name] += lang[followed_repo_id][lang_name]
+          end
+        end
+      end
+    end
+  end
+  
+  return user_lang
+end
+
+
 ##########
 
 print "reading data\n"
 
 data = InOut.read_data()
-repo_followers = Util.rotate_hash(data)
-#repos = read_repos()
+lang = InOut.read_lang()
 test = InOut.read_test()
+
+user_lang = calculate_user_lang(lang, test, data)
+repo_followers = Util.rotate_hash(data)
 calculate_and_write_collab_file(test, data, repo_followers) if !File.exist?(InOut::COLLAB_FILE_PATH) # only run if file not there
 collab = InOut.read_collab()
+
 print "calculating\n"
 
 # get results
@@ -66,10 +90,21 @@ for test_user_id in test
   results[test_user_id] = []
   if collab.has_key?(test_user_id)
     potential_repos = collab[test_user_id]
-    
-    # normalise by repo popularity
-    for repo_id in potential_repos.keys
-      potential_repos[repo_id] = potential_repos[repo_id].to_f * repo_followers[repo_id].length.to_f
+
+    # remove repos that don't feature a lang the user likes
+    for potential_repo_id in potential_repos.keys
+      user_likes_lang = false
+      if lang.has_key?(potential_repo_id)
+        for repo_lang_name in lang[potential_repo_id].keys
+          if user_lang.has_key?(test_user_id)
+            for user_lang_name in user_lang[test_user_id]
+              user_likes_lang = true
+            end
+          end
+        end
+      end
+      
+      potential_repos.delete(potential_repo_id) if !user_likes_lang
     end
 
     # rank by repo score
