@@ -107,24 +107,26 @@ for test_user_id in test
     potential_repos = collab[test_user_id]
 
     # remove repos that don't feature a lang the user likes
-    for potential_repo_id in potential_repos.keys
-      user_likes_lang = false
-      if lang.has_key?(potential_repo_id)
-        for repo_lang_name in lang[potential_repo_id].keys
-          if top_user_lang.has_key?(test_user_id)
-            for user_lang_name in top_user_lang[test_user_id]
-              user_likes_lang = true if repo_lang_name == user_lang_name
-            end
-          else
-            user_likes_lang = true
-          end
-        end
-      else
-        user_likes_lang = true
-      end
-      
-      potential_repos.delete(potential_repo_id) if !user_likes_lang
-    end
+    # for potential_repo_id in potential_repos.keys
+    #   user_likes_lang = false
+    #   if lang.has_key?(potential_repo_id)
+    #     for repo_lang_name in lang[potential_repo_id].keys
+    #       if top_user_lang.has_key?(test_user_id)
+    #         for user_lang_name in top_user_lang[test_user_id]
+    #           user_likes_lang = true if repo_lang_name == user_lang_name
+    #         end
+    #       else
+    #         user_likes_lang = true
+    #       end
+    #     end
+    #   else
+    #     user_likes_lang = true
+    #   end
+    # 
+    #   potential_repos.delete(potential_repo_id) if !user_likes_lang
+    # end
+
+    #print potential_repos.keys.length.to_s + "\n"
 
     # rank by repo score
     ranked_potential_repos = potential_repos.keys().sort { |x,y| potential_repos[y] <=> potential_repos[x] }
@@ -133,7 +135,7 @@ for test_user_id in test
     (0..Util.min(9, ranked_potential_repos.length)).each { |i| results[test_user_id] << ranked_potential_repos[i] }
   end
   
-  print counter.to_s + "\n"
+  #print counter.to_s + "\n"
   counter += 1
 end
 
