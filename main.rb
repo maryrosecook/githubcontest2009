@@ -67,6 +67,20 @@ def self.calculate_user_lang(lang, test, data)
   return user_lang
 end
 
+def self.calculate_top_user_lang(user_lang)
+  top_user_lang = {}
+  for user_id in user_lang.keys
+    top_user_lang[user_id] = {}
+    i = 0
+    for lang_name in user_lang[user_id].keys.sort { |x,y| user_lang[user_id][y] <=> user_lang[user_id][x] }
+      top_user_lang[user_id][lang_name] = user_lang[user_id][lang_name]
+      break if i > 2
+      i += 1
+    end
+  end
+  
+  return top_user_lang
+end
 
 ##########
 
@@ -77,6 +91,7 @@ lang = InOut.read_lang()
 test = InOut.read_test()
 
 user_lang = calculate_user_lang(lang, test, data)
+top_user_lang = calculate_top_user_lang(user_lang)
 repo_followers = Util.rotate_hash(data)
 calculate_and_write_collab_file(test, data, repo_followers) if !File.exist?(InOut::COLLAB_FILE_PATH) # only run if file not there
 collab = InOut.read_collab()
@@ -96,8 +111,8 @@ for test_user_id in test
       user_likes_lang = false
       if lang.has_key?(potential_repo_id)
         for repo_lang_name in lang[potential_repo_id].keys
-          if user_lang.has_key?(test_user_id)
-            for user_lang_name in user_lang[test_user_id]
+          if top_user_lang.has_key?(test_user_id)
+            for user_lang_name in top_user_lang[test_user_id]
               user_likes_lang = true if repo_lang_name == user_lang_name
             end
           else
