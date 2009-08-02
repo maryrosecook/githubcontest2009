@@ -82,20 +82,31 @@ def self.calculate_top_user_lang(user_lang)
   return top_user_lang
 end
 
+# get most followed repos
+def self.calculate_most_popular_repos(repo_followers)
+  i = 0
+  most_popular_repos = []
+  for repo_id in repo_followers.keys.sort { |x,y| repo_followers[y].length <=> repo_followers[x].length }
+    most_popular_repos << repo_id
+    break if i > 9
+    i += 1
+  end
+  
+  return most_popular_repos
+end
+
 ##########
 
 print "reading data\n"
-
 data = InOut.read_data()
 lang = InOut.read_lang()
 test = InOut.read_test()
-
 user_lang = calculate_user_lang(lang, test, data)
 top_user_lang = calculate_top_user_lang(user_lang)
 repo_followers = Util.rotate_hash(data)
+most_popular_repos = calculate_most_popular_repos(repo_followers)
 calculate_and_write_collab_file(test, data, repo_followers) if !File.exist?(InOut::COLLAB_FILE_PATH) # only run if file not there
 collab = InOut.read_collab()
-
 print "calculating\n"
 
 # get results
@@ -105,38 +116,17 @@ for test_user_id in test
   results[test_user_id] = []
   if collab.has_key?(test_user_id)
     potential_repos = collab[test_user_id]
-
-    # remove repos that don't feature a lang the user likes
-    # for potential_repo_id in potential_repos.keys
-    #   user_likes_lang = false
-    #   if lang.has_key?(potential_repo_id)
-    #     for repo_lang_name in lang[potential_repo_id].keys
-    #       if top_user_lang.has_key?(test_user_id)
-    #         for user_lang_name in top_user_lang[test_user_id]
-    #           user_likes_lang = true if repo_lang_name == user_lang_name
-    #         end
-    #       else
-    #         user_likes_lang = true
-    #       end
-    #     end
-    #   else
-    #     user_likes_lang = true
-    #   end
-    # 
-    #   potential_repos.delete(potential_repo_id) if !user_likes_lang
-    # end
-
-    #print potential_repos.keys.length.to_s + "\n"
-
-    # rank by repo score
     ranked_potential_repos = potential_repos.keys().sort { |x,y| potential_repos[y] <=> potential_repos[x] }
-
-    # recommend top ten
-    (0..Util.min(9, ranked_potential_repos.length)).each { |i| results[test_user_id] << ranked_potential_repos[i] }
+    if ranked_potential_repos.length > 0
+      (0..Util.min(9, ranked_potential_repos.length)).each { |i| results[test_user_id] << ranked_potential_repos[i] }
+    end
   end
   
-  #print counter.to_s + "\n"
+  print counter.to_s + "\n"
   counter += 1
 end
+
+# suggest most popular repos to users w/o suggestions
+results.keys.each { |user_id| results[user_id] = most_popular_repos if results[user_id].length == 0 }
 
 InOut.output_results(results)
